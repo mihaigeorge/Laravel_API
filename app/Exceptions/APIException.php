@@ -22,12 +22,7 @@ class APIException extends Exception
      */
     public function __construct($errors, $statusCode) 
     {
-        if (is_string($errors)) {
-            $this->errors = [$errors];
-        } else {
-            $this->errors = $errors;
-        }
-
+        $this->errors = $errors;
         $this->statusCode = $statusCode;
     }
 

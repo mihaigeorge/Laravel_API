@@ -5,6 +5,7 @@ namespace App\Models;
 use JWTAuth;
 use Exception;
 use APIException;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Auth\Passwords\CanResetPassword;
 use Symfony\Component\HttpFoundation\Response as HttpResponse;
@@ -37,22 +38,17 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
      * Add a new user into database
      * 
      * @param Request $request
+     * @return User
      */
     public function register($request)
     {   
-        $this->validate($request, [
-            'firstName' => 'required|max:255',
-            'lastName'  => 'required|max:255',
-            'email'     => 'required|email|unique:users,email|max:255',
-            'password'  => 'required|max:255'
-        ]);
-
         $this->first_name = $request->input("firstName");
         $this->last_name  = $request->input("lastName");
         $this->email      = $request->input("email");
         $this->password   = bcrypt($request->input("password"));
 
         $this->save();
+        return $this;
     }
 
     /**
@@ -63,11 +59,6 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
      */
     public function login($request)
     {
-        $this->validate($request, [
-            'email'    => 'required|email',
-            'password' => 'required'
-        ]);
-
         if ($token = JWTAuth::attempt(['email' => $request->input("email"), 'password' => $request->input("password")])) {
             return $token;
         }

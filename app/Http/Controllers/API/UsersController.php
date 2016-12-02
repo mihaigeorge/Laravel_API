@@ -2,12 +2,10 @@
 
 namespace App\Http\Controllers\API;
 
-use JWTAuth;
-use APIException;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Validation\ValidationException;
-use Symfony\Component\HttpFoundation\Response as HttpResponse;
+use App\Http\Requests\API\LoginRequest;
+use App\Http\Requests\API\RegisterRequest;
 
 class UsersController extends APIController
 {
@@ -17,24 +15,20 @@ class UsersController extends APIController
 	 * @param Request $request 
 	 * @return Response
 	 */
-	public function register(Request $request)
+	public function register(RegisterRequest $request, User $user)
 	{	
-		$user = new User;
 		$user->register($request);
-
 		return $this->respondCreated();
 	}
 
 	/**
 	 * Retrieve authentication token
 	 * 
-	 * @param Request $request 
+	 * @param LoginRequest $request 
 	 * @return type
 	 */
-	public function login(Request $request)
+	public function login(LoginRequest $request, User $user)
 	{
-		$user = new User;
-
 		return $this->respond([
 			'token' => $user->login($request)
 		]);
@@ -45,12 +39,10 @@ class UsersController extends APIController
 	 *
 	 * @param Request $request
 	 */
-	public function logout(Request $request)
+	public function logout(Request $request, User $user)
 	{
-		$user = new User;
 		$user->logout($request);
-
-		return $this->respond();
+		return $this->respondAccepted();
 	}
 
 	/**
@@ -89,7 +81,13 @@ class UsersController extends APIController
 		return $this->respondAccepted();
 	}
 
-	public function user(Request $request)
+	/**
+	 * Get authenticated user based on JWT Token
+	 * 
+	 * @param  Request
+	 * @return Response
+	 */
+	public function getUser(Request $request)
 	{	
 		return $this->respond([
 			'user' => User::getAuthenticated($request)
