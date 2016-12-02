@@ -11,6 +11,7 @@ use Illuminate\Auth\Passwords\CanResetPassword;
 use Symfony\Component\HttpFoundation\Response as HttpResponse;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
+use App\Models\Scope;
 
 class User extends Model implements AuthenticatableContract, CanResetPasswordContract
 {   
@@ -35,6 +36,14 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     ];
 
     /**
+     * The users that belong to the scope.
+     */
+    public function scopes()
+    {
+        return $this->belongsToMany('App\Models\Scope', 'users_scopes');
+    }
+
+    /**
      * Add a new user into database
      * 
      * @param Request $request
@@ -48,6 +57,11 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         $this->password   = bcrypt($request->input("password"));
 
         $this->save();
+
+        // Automatically assign 'user' scope
+        $scope = Scope::where('name', 'user')->first();
+        $this->scopes()->attach($scope->id);
+
         return $this;
     }
 
@@ -100,7 +114,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
      * Get authenticated user
      *
      * @param  Request  $request
-     * @return App\Models\User
+     * @return User
      */
     public static function getAuthenticated($request)
     {
