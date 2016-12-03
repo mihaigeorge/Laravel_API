@@ -44,6 +44,20 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     }
 
     /**
+     * Check if User has Scope
+     * 
+     * @param  string
+     * @return bool
+     */
+    public function hasScope($scopeName) {
+        $user = self::whereHas('scopes', function($query) use ($scopeName) {
+            $query->where('name', $scopeName);
+        })->first();
+
+        return !empty($user);
+    }
+
+    /**
      * Add a new user into database
      * 
      * @param Request $request
@@ -71,7 +85,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
      * @param Request $request 
      * @return string
      */
-    public function login($request)
+    public static function login($request)
     {
         if ($token = JWTAuth::attempt(['email' => $request->input("email"), 'password' => $request->input("password")])) {
             return $token;
@@ -85,7 +99,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
      *
      * @param  Request  $request
      */
-    public function logout($request)
+    public static function logout($request)
     {
         try {
             JWTAuth::invalidate(JWTAuth::getToken());
@@ -101,7 +115,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
      * @param Request $request 
      * @return string
      */
-    public function refreshToken($request)
+    public static function refreshToken($request)
     {
         try {
             return JWTAuth::refresh(JWTAuth::getToken());

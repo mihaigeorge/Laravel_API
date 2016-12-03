@@ -45,6 +45,18 @@ Route::group(['prefix' => 'api'], function () {
      */
     Route::group(['middleware' => ['jwt.auth']], function() {
     	Route::get('protected', 'API\UsersController@getProtected');
+
+        /**
+         * Admin routes
+         */
+        Route::group(['prefix' => 'admin', 'middleware' => 'api.admin'], function() {
+            
+            Route::get('scopes', 'API\ScopesController@getList');
+            Route::get('scopes/{id}', 'API\ScopesController@get');
+            Route::post('scopes', 'API\ScopesController@add');
+            Route::post('scopes/{id}', 'API\ScopesController@edit');
+        
+        });
     });
 });
 

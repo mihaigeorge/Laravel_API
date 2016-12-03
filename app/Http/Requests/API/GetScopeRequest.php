@@ -3,9 +3,9 @@
 namespace App\Http\Requests\API;
 
 use App\Http\Requests\Request;
-use App\Models\User;
+use App\Models\Scope;
 
-class LoginRequest extends APIRequest
+class GetScopeRequest extends APIRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -14,7 +14,7 @@ class LoginRequest extends APIRequest
      */
     public function authorize()
     {
-        return true;
+        return Scope::authorizeGet($this);
     }
 
     /**
@@ -25,8 +25,7 @@ class LoginRequest extends APIRequest
     public function rules()
     {
         return [
-            'email'    => 'required|email',
-            'password' => 'required'
+            //
         ];
     }
 }

@@ -6,10 +6,12 @@ use Response;
 use Exception;
 use App\Exceptions\APIException;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Http\Exception\HttpResponseException;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Symfony\Component\HttpFoundation\Response as HttpResponse;
 
 class Handler extends ExceptionHandler
 {
@@ -47,7 +49,20 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Exception $e)
     {   
-        # if Exception is thrown in API return error Response
+        // If Request is from API convert exceptions to APIException
+        if ($request->is('api/*')) {
+            if ($e instanceof ModelNotFoundException) {
+                throw new APIException("notFound", HttpResponse::HTTP_NOT_FOUND);
+            }
+            else if ($e instanceof HttpResponseException) {
+                $statusCode = $e->getResponse()->getStatusCode();
+                if ($statusCode == 403) {
+                    throw new APIException("forbidden", HttpResponse::HTTP_FORBIDDEN);
+                }
+            }
+        }
+        
+        // if Exception is APIException return error Response
         if ($e instanceof APIException) {
             
             return Response::json([
@@ -56,7 +71,7 @@ class Handler extends ExceptionHandler
             ], $e->getStatusCode());
 
         } else {
-        
+
             return parent::render($request, $e);
         }
     }

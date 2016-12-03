@@ -15,9 +15,11 @@ class UsersController extends APIController
 	 * @param Request $request 
 	 * @return Response
 	 */
-	public function register(RegisterRequest $request, User $user)
+	public function register(RegisterRequest $request)
 	{	
+		$user = new User();
 		$user->register($request);
+		
 		return $this->respondCreated();
 	}
 
@@ -27,10 +29,10 @@ class UsersController extends APIController
 	 * @param LoginRequest $request 
 	 * @return type
 	 */
-	public function login(LoginRequest $request, User $user)
+	public function login(LoginRequest $request)
 	{
 		return $this->respond([
-			'token' => $user->login($request)
+			'token' => User::login($request)
 		]);
 	}
 
@@ -39,9 +41,9 @@ class UsersController extends APIController
 	 *
 	 * @param Request $request
 	 */
-	public function logout(Request $request, User $user)
+	public function logout(Request $request)
 	{
-		$user->logout($request);
+		User::logout($request);
 		return $this->respondAccepted();
 	}
 
@@ -51,11 +53,9 @@ class UsersController extends APIController
 	 * @param Request $request 
 	 */
 	public function refreshToken(Request $request)
-	{
-		$user = new User;
-		
+	{	
 		return $this->respond([
-			'token' => $user->refreshToken($request)
+			'token' => User::refreshToken($request)
 		]);
 	}
 
